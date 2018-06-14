@@ -1,0 +1,36 @@
+{
+  "name": "grade-app",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "babel-eslint": "^8.2.3",
+    "babel-plugin-import": "^1.8.0",
+    "eslint": "^4.19.1",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.8.2",
+    "jest-expo": "~28.0.0",
+    "react-native-scripts": "1.14.0",
+    "react-test-renderer": "16.4.1"
+  },
+  "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
+  "scripts": {
+    "start": "react-native-scripts start",
+    "eject": "react-native-scripts eject",
+    "android": "react-native-scripts android",
+    "ios": "react-native-scripts ios",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "jest-expo"
+  },
+  "dependencies": {
+    "antd-mobile-rn": "^2.2.0-beta.1",
+    "apollo-client-preset": "^1.0.8",
+    "expo": "^28.0.0",
+    "graphql": "^0.13.2",
+    "graphql-tag": "^2.9.2",
+    "react": "16.4.1",
+    "react-apollo": "^2.1.5",
+    "react-native": "~0.55.4"
+  }
+}
