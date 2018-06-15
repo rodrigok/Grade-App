@@ -42,7 +42,7 @@ class Divider extends React.Component {
 class Grade extends React.Component {
 	static navigationOptions = ({ screenProps }) => {
 		return {
-			title: 'Meu Currículo',
+			title: 'Calendário',
 			headerRight: (
 				<Button
 					onPress={async() => {
@@ -158,7 +158,7 @@ class Grade extends React.Component {
 		return (
 			<ScrollView>
 				<List renderHeader={() => 'Subtitle'} className='my-list'>
-					{this.renderItems()}
+					{/* {this.renderItems()} */}
 				</List>
 			</ScrollView>
 		);

@@ -4,10 +4,12 @@ import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
 import { setContext } from 'apollo-link-context';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { createStackNavigator } from 'react-navigation';
+import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { getToken } from './utils';
 import Grade from './views/Grade';
+import Calendar from './views/Calendar';
 import Login from './views/Login';
 import Register from './views/Register';
 
@@ -43,8 +45,32 @@ const AuthStack = createStackNavigator({
 	Register: { screen: Register, navigationOptions: { headerTitle: 'Register' } }
 });
 
-const LoggedInStack = createStackNavigator({
-	Profile: { screen: Grade, navigationOptions: { headerTitle: 'Grade' } }
+const LoggedInStack = createBottomTabNavigator({
+	Calendar: { screen: createStackNavigator({ Calendar }), navigationOptions: { title: 'Calendário' } },
+	Grade: { screen: createStackNavigator({ Grade }), navigationOptions: { title: 'Meu Currículo' } }
+}, {
+	navigationOptions: ({ navigation }) => ({
+		tabBarIcon: ({ focused, tintColor }) => {
+			const { routeName } = navigation.state;
+
+			let iconName;
+
+			switch (routeName) {
+				case 'Calendar':
+					iconName = `ios-calendar${ focused ? '' : '-outline' }`;
+					break;
+				case 'Grade':
+					iconName = `ios-list-box${ focused ? '' : '-outline' }`;
+					break;
+			}
+
+			return <Ionicons name={iconName} size={25} color={tintColor} />;
+		}
+	}),
+	tabBarOptions: {
+		activeTintColor: 'tomato',
+		inactiveTintColor: 'gray'
+	}
 });
 
 
