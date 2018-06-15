@@ -2,42 +2,80 @@ import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
+import { setContext } from 'apollo-link-context';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { createStackNavigator } from 'react-navigation';
+
+import { getToken } from './utils';
 import Grade from './views/Grade';
+import Login from './views/Login';
 
 const httpLink = new HttpLink({
-	// uri: 'http://localhost:3000/graphql'
-	uri: 'http://192.168.1.16:3000/graphql'
+	uri: 'http://localhost:3000/graphql'
+	// uri: 'http://192.168.1.16:3000/graphql'
+});
+
+const authLink = setContext(async(_, { headers }) => {
+	const token = await getToken();
+
+	if (!token) {
+		return {
+			headers
+		};
+	}
+
+	return {
+		headers: {
+			...headers,
+			authorization: `Bearer ${ token }`
+		}
+	};
 });
 
 const client = new ApolloClient({
-	link: httpLink,
+	link: authLink.concat(httpLink),
 	cache: new InMemoryCache()
 });
 
-const styles = StyleSheet.create({
-	safeArea: {
-		flex: 1,
-		backgroundColor: '#F5F5F9'
-	},
-	badge: {
-		backgroundColor: '#EEE',
-		borderRadius: 5,
-		overflow: 'hidden',
-		paddingHorizontal: 3,
-		paddingVertical: 1,
-		marginRight: 8
-	}
+const AuthStack = createStackNavigator({
+	// Register: { screen: Register, navigationOptions: { headerTitle: 'Register' } },
+	Login: { screen: Login, navigationOptions: { headerTitle: 'Login' } }
 });
 
+const LoggedInStack = createStackNavigator({
+	Profile: { screen: Grade, navigationOptions: { headerTitle: 'Grade' } }
+});
+
+
 export default class App extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			loggedIn: true
+		};
+
+		getToken().then((token) => {
+			this.setState({
+				loggedIn: token != null
+			});
+		});
+	}
+
+	handleChangeLoginState = (loggedIn = false) => {
+		this.setState({ loggedIn });
+	};
+
+	renderScreen() {
+		return this.state.loggedIn ?
+			<LoggedInStack screenProps={{ changeLoginState: this.handleChangeLoginState }} /> :
+			<AuthStack screenProps={{ changeLoginState: this.handleChangeLoginState }} />;
+	}
+
 	render() {
 		return (
 			<ApolloProvider client={client}>
-				<SafeAreaView style={styles.safeArea}>
-					<Grade />
-				</SafeAreaView>
+				{this.renderScreen()}
 			</ApolloProvider>
 		);
 	}

@@ -26,11 +26,13 @@
   "dependencies": {
     "antd-mobile-rn": "^2.2.0-beta.1",
     "apollo-client-preset": "^1.0.8",
+    "apollo-link-context": "^1.0.8",
     "expo": "^28.0.0",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.9.2",
     "react": "16.4.1",
     "react-apollo": "^2.1.5",
-    "react-native": "~0.55.4"
+    "react-native": "~0.55.4",
+    "react-navigation": "^2.3.1"
   }
 }

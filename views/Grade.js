@@ -2,11 +2,18 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 
-import { Text, StyleSheet, ScrollView, View } from 'react-native';
+import { signOut } from '../utils';
+
+import { Text, StyleSheet, ScrollView, View, Button } from 'react-native';
 
 import {
 	List
 } from 'antd-mobile-rn';
+
+const StatusColor = {
+	doing: 'orange',
+	done: 'lightgray'
+};
 
 const styles = StyleSheet.create({
 	badge: {
@@ -33,6 +40,15 @@ class Divider extends React.Component {
 }
 
 class Grade extends React.Component {
+	static navigationOptions = {
+		headerRight: (
+			<Button
+				onPress={() => signOut()}
+				title='Sair'
+			/>
+		)
+	};
+
 	state = {}
 
 	renderRequirements(grade) {
@@ -93,6 +109,7 @@ class Grade extends React.Component {
 		return grades.map((grade) => {
 			const odd = grade.semester % 2 !== 0;
 			const open = this.state.open === grade._id;
+			const status = grade.userStatus || 'pending';
 
 			return (
 				<List.Item key={grade._id} arrow={open ? 'up' : 'down'} multipleLine onClick={() => this.setState({ open: open ? undefined : grade._id })}>
@@ -100,7 +117,7 @@ class Grade extends React.Component {
 						<View style={[styles.badge, { backgroundColor: odd ? '#EEE' : '#AAA' }]}>
 							<Text style={{ color: odd ? '#888' : '#FFF' }}>{`${ grade.semester }º`}</Text>
 						</View>
-						<Text>
+						<Text style={{ color: StatusColor[status] }}>
 							{grade.name}
 						</Text>
 					</View>
@@ -135,7 +152,7 @@ export default graphql(gql`
 		courses {
 			name
 		}
-		grades (course: "SI") {
+		grades {
 			_id
 			credit
 			workload
@@ -143,6 +160,7 @@ export default graphql(gql`
 			name
 			semester
 			description
+			userStatus
 			requirement {
 				_id
 				semester
