@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 
 import { signOut } from '../utils';
 
-import { Text, StyleSheet, ScrollView, View, Button } from 'react-native';
+import { Text, StyleSheet, ScrollView, View, Button, RefreshControl } from 'react-native';
 
 import {
 	List
@@ -55,7 +55,10 @@ class Grade extends React.Component {
 		};
 	};
 
-	state = {}
+	state = {
+		refreshing: false,
+		refetching: false
+	}
 
 	renderRequirements(grade) {
 		if (!grade.requirement || !grade.requirement.length) {
@@ -145,21 +148,39 @@ class Grade extends React.Component {
 		});
 	}
 
+	_onRefresh = () => {
+		this.setState({
+			refetching: true
+		});
+
+		this.props.data.refetch().then(() => {
+			this.setState({
+				refetching: false
+			});
+		});
+	}
+
 	render() {
 		const { data: { loading, error } } = this.props;
 		if (error) {
 			return alert(error);
 		}
 
-		if (loading) {
-			return <Text>Loading</Text>;
-		}
-
 		return (
-			<ScrollView>
-				<List renderHeader={() => 'Subtitle'} className='my-list'>
-					{this.renderItems()}
-				</List>
+			<ScrollView
+				refreshControl={
+					<RefreshControl
+						refreshing={loading || this.state.refetching}
+						onRefresh={this._onRefresh}
+					/>
+				}
+			>
+				{ loading ?
+					undefined :
+					<List>
+						{this.renderItems()}
+					</List>
+				}
 			</ScrollView>
 		);
 	}

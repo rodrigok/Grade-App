@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 
 import { signOut } from '../utils';
 
-import { Text, StyleSheet, ScrollView, View, Button } from 'react-native';
+import { Text, ScrollView, View, Button, RefreshControl } from 'react-native';
 
 import {
 	List
@@ -22,30 +22,6 @@ const StatusColorDetail = {
 	pending: '#888'
 };
 
-const styles = StyleSheet.create({
-	badge: {
-		backgroundColor: '#EEE',
-		borderRadius: 5,
-		overflow: 'hidden',
-		paddingHorizontal: 3,
-		paddingVertical: 1,
-		marginRight: 8
-	}
-});
-
-class Divider extends React.Component {
-	render() {
-		return (
-			<View key='title' >
-				<View style={{ height: 1, backgroundColor: '#eee', marginTop: 10 }}></View>
-				<Text style={{ fontSize: 12, color: '#888', marginBottom: 8, textAlign: 'left', marginTop: -9 }}>
-					<Text style={{ fontWeight: 'bold', backgroundColor: 'white', marginVertical: 5 }}>{this.props.children}  </Text>
-				</Text>
-			</View>
-		);
-	}
-}
-
 class Grade extends React.Component {
 	static navigationOptions = ({ screenProps }) => {
 		return {
@@ -62,7 +38,10 @@ class Grade extends React.Component {
 		};
 	};
 
-	state = {}
+	state = {
+		refreshing: false,
+		refetching: false
+	}
 
 	renderItems(items) {
 		return items.map((item) => {
@@ -121,6 +100,10 @@ class Grade extends React.Component {
 
 		const { data: { calendar } } = this.props;
 
+		if (!calendar || !calendar.grade) {
+			return;
+		}
+
 		return Object.entries(groups).map(([key, { day, shift }]) => {
 			const items = calendar.grade.filter(g => g.day === day && g.shift === shift && g.grade.code);
 			if (items.length) {
@@ -133,18 +116,33 @@ class Grade extends React.Component {
 		});
 	}
 
+	_onRefresh = () => {
+		this.setState({
+			refetching: true
+		});
+
+		this.props.data.refetch().then(() => {
+			this.setState({
+				refetching: false
+			});
+		});
+	}
+
 	render() {
 		const { data: { loading, error } } = this.props;
 		if (error) {
 			return alert(error);
 		}
 
-		if (loading) {
-			return <Text>Loading</Text>;
-		}
-
 		return (
-			<ScrollView>
+			<ScrollView
+				refreshControl={
+					<RefreshControl
+						refreshing={loading || this.state.refetching}
+						onRefresh={this._onRefresh}
+					/>
+				}
+			>
 				{this.renderGroups()}
 			</ScrollView>
 		);

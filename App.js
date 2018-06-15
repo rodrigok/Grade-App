@@ -46,8 +46,8 @@ const AuthStack = createStackNavigator({
 });
 
 const LoggedInStack = createBottomTabNavigator({
-	Calendar: { screen: createStackNavigator({ Calendar }), navigationOptions: { title: 'Calendário' } },
-	Grade: { screen: createStackNavigator({ Grade }), navigationOptions: { title: 'Meu Currículo' } }
+	Grade: { screen: createStackNavigator({ Grade }), navigationOptions: { title: 'Meu Currículo' } },
+	Calendar: { screen: createStackNavigator({ Calendar }), navigationOptions: { title: 'Calendário' } }
 }, {
 	navigationOptions: ({ navigation }) => ({
 		tabBarIcon: ({ focused, tintColor }) => {
