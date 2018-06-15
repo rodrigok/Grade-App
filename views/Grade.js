@@ -40,13 +40,18 @@ class Divider extends React.Component {
 }
 
 class Grade extends React.Component {
-	static navigationOptions = {
-		headerRight: (
-			<Button
-				onPress={() => signOut()}
-				title='Sair'
-			/>
-		)
+	static navigationOptions = ({ screenProps }) => {
+		return {
+			headerRight: (
+				<Button
+					onPress={async() => {
+						await signOut();
+						screenProps.changeLoginState(false);
+					}}
+					title='Sair'
+				/>
+			)
+		};
 	};
 
 	state = {}

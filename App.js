@@ -9,6 +9,7 @@ import { createStackNavigator } from 'react-navigation';
 import { getToken } from './utils';
 import Grade from './views/Grade';
 import Login from './views/Login';
+import Register from './views/Register';
 
 const httpLink = new HttpLink({
 	uri: 'http://localhost:3000/graphql'
@@ -38,8 +39,8 @@ const client = new ApolloClient({
 });
 
 const AuthStack = createStackNavigator({
-	// Register: { screen: Register, navigationOptions: { headerTitle: 'Register' } },
-	Login: { screen: Login, navigationOptions: { headerTitle: 'Login' } }
+	Login: { screen: Login, navigationOptions: { headerTitle: 'Login' } },
+	Register: { screen: Register, navigationOptions: { headerTitle: 'Register' } }
 });
 
 const LoggedInStack = createStackNavigator({

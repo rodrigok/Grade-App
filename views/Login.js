@@ -6,6 +6,8 @@ import { signIn } from '../utils';
 
 import { List, InputItem, Button, WhiteSpace, Text } from 'antd-mobile-rn';
 
+const rfcMailPattern = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
 class Login extends React.Component {
 	state = {
 		error: {}
@@ -17,7 +19,7 @@ class Login extends React.Component {
 				this.setState({
 					error: {
 						...this.state.error,
-						[field]: !/\@/.test(value)
+						[field]: !rfcMailPattern.test(value)
 					}
 				});
 				break;
@@ -36,6 +38,11 @@ class Login extends React.Component {
 		});
 	}
 
+	onRegister = () => {
+		const { navigation } = this.props;
+		navigation.navigate('Register');
+	}
+
 	onLogin = () => {
 		this.props.login({
 			variables: {
@@ -52,26 +59,35 @@ class Login extends React.Component {
 
 	render() {
 		return (
-			<List renderHeader={() => 'Login'}>
-				<InputItem
-					type='email'
-					placeholder='email'
-					autoCapitalize='none'
-					error={this.state.error.email}
-					onChange={this.onChange('email')}
-					value={this.state.email}
-				>Email</InputItem>
-				<InputItem
-					type='password'
-					placeholder='senha'
-					error={this.state.error.password}
-					onChange={this.onChange('password')}
-					value={this.state.password}
-				>Senha</InputItem>
+			<React.Fragment>
+				<WhiteSpace size='xl'/>
+				<List>
+					<InputItem
+						type='email'
+						placeholder='Email'
+						autoCapitalize='none'
+						error={this.state.error.email}
+						onChange={this.onChange('email')}
+						value={this.state.email}
+					></InputItem>
+					<InputItem
+						type='password'
+						placeholder='Senha'
+						error={this.state.error.password}
+						onChange={this.onChange('password')}
+						value={this.state.password}
+					></InputItem>
+				</List>
+				<WhiteSpace size='xl'/>
+				<Button type='primary' style={{ borderRadius: 0 }} disabled={!this.state.email || !this.state.password || this.state.error.email || this.state.error.password} onClick={this.onLogin}>
+					Entrar
+				</Button>
 				<WhiteSpace />
-				<Button type='primary' onClick={this.onLogin}>Login</Button>
+				<Button type='ghost' style={{ borderRadius: 0, borderWidth: 0 }} onClick={this.onRegister}>
+					Registrar
+				</Button>
 				<Text>{JSON.stringify(this.state.log)}</Text>
-			</List>
+			</React.Fragment>
 		);
 	}
 }
