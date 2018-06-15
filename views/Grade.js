@@ -200,6 +200,7 @@ class Grade extends React.Component {
 
 		return (
 			<ScrollView
+				style={{ backgroundColor: '#F5F5F9' }}
 				refreshControl={
 					<RefreshControl
 						refreshing={loading || this.state.refetching}

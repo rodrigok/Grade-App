@@ -8,7 +8,8 @@ import { signOut } from '../utils';
 import { Text, ScrollView, View, Button, RefreshControl, TouchableWithoutFeedback } from 'react-native';
 
 import {
-	List
+	List,
+	Switch
 } from 'antd-mobile-rn';
 
 const StatusColor = {
@@ -47,7 +48,9 @@ class Grade extends React.Component {
 
 	state = {
 		refreshing: false,
-		refetching: false
+		refetching: false,
+		done: false,
+		blocked: true
 	}
 
 	setInterest = ({ calendarId, gradeItemId, shift, day, interested }) => {
@@ -64,6 +67,22 @@ class Grade extends React.Component {
 		}).then(() => {
 			refetch();
 		});
+	}
+
+	baseFilter = (item) => {
+		if (!item.grade.code) {
+			return false;
+		}
+
+		if (this.state.done === false && item.userStatus !== 'pending') {
+			return false;
+		}
+
+		if (this.state.blocked === false) {
+			return !item.grade.requirement.find(r => r.userStatus === 'pending');
+		}
+
+		return true;
 	}
 
 	renderItems(items, calendarId) {
@@ -171,7 +190,7 @@ class Grade extends React.Component {
 		}
 
 		return Object.entries(groups).map(([key, { day, shift }]) => {
-			const items = calendar.grade.filter(g => g.day === day && g.shift === shift && g.grade.code);
+			const items = calendar.grade.filter(g => g.day === day && g.shift === shift).filter(this.baseFilter);
 			if (items.length) {
 				return (
 					<List key={key} renderHeader={() => key}>
@@ -201,16 +220,26 @@ class Grade extends React.Component {
 		}
 
 		return (
-			<ScrollView
-				refreshControl={
-					<RefreshControl
-						refreshing={loading || this.state.refetching}
-						onRefresh={this._onRefresh}
-					/>
-				}
-			>
-				{this.renderGroups()}
-			</ScrollView>
+			<React.Fragment>
+				<ScrollView
+					style={{ backgroundColor: '#F5F5F9' }}
+					refreshControl={
+						<RefreshControl
+							refreshing={loading || this.state.refetching}
+							onRefresh={this._onRefresh}
+						/>
+					}
+				>
+					<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 8, borderBottomColor: '#ddd', borderBottomWidth: 1 }}>
+						<Text style={{ color: '#888' }}>Concluidas: </Text>
+						<Switch checked={this.state.done} onChange={(value) => this.setState({ done: value })} />
+						<Text style={{ color: '#888', paddingHorizontal: 10 }}>|</Text>
+						<Text style={{ color: '#888' }}>Bloqueadas: </Text>
+						<Switch checked={this.state.blocked} onChange={(value) => this.setState({ blocked: value })} />
+					</View>
+					{this.renderGroups()}
+				</ScrollView>
+			</React.Fragment>
 		);
 	}
 }
