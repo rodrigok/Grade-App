@@ -106,7 +106,19 @@ class Grade extends React.Component {
 	renderItems() {
 		const { data: { grades } } = this.props;
 
-		return grades.map((grade) => {
+		const gradesSorted = [...grades].sort((a, b) => {
+			const aText = `${ a.semester } / ${ a.code }`;
+			const bText = `${ b.semester } / ${ b.code }`;
+			if (aText > bText) {
+				return 1;
+			}
+			if (aText < bText) {
+				return -1;
+			}
+			return 0;
+		});
+
+		return gradesSorted.map((grade) => {
 			const odd = grade.semester % 2 !== 0;
 			const open = this.state.open === grade._id;
 			const status = grade.userStatus || 'pending';
