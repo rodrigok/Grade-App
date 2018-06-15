@@ -67,7 +67,7 @@ class Grade extends React.Component {
 		}
 
 		const items = [
-			<Divider key='title'>Requisitos</Divider>
+			<Divider key='title' backgroundColor='#F5F5F9'>Requisitos</Divider>
 		].concat(grade.requirement.map(requirement => {
 			return (
 				<View key={requirement._id} style={{ backgroundColor: 'red', paddingVertical: 1, paddingHorizontal: 5, borderRadius: 2, marginBottom: 2 }}>

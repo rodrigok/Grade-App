@@ -23,6 +23,12 @@ const StatusColorDetail = {
 	pending: '#888'
 };
 
+const Status = {
+	pending: 'Pendente',
+	doing: 'Cursando',
+	done: 'Concluído'
+};
+
 class Grade extends React.Component {
 	static navigationOptions = ({ screenProps }) => {
 		return {
@@ -84,6 +90,29 @@ class Grade extends React.Component {
 				<Ionicons name={`md-heart${ item.interested ? '' : '-outline' }`} size={25} color='#666' />
 			</TouchableWithoutFeedback>;
 
+			const requirements = item.grade.requirement.filter(r => r.userStatus !== 'done').map(requirement => {
+				const style = {
+					color: '#f50'
+				};
+
+				switch (requirement.userStatus) {
+					case 'done':
+						style.color = '#d3d3d3';
+						break;
+					case 'doing':
+						style.color = '#ffa500';
+						break;
+				}
+
+				return <View key={requirement._id} style={{ backgroundColor: style.color, paddingVertical: 1, paddingHorizontal: 5, borderRadius: 2, marginBottom: 2, flex: 1 }}>
+					<Text style={{ fontSize: 12, color: '#FFF', fontWeight: 'bold' }}>
+						<Text>{Status[requirement.userStatus]}</Text>
+						<Text> - </Text>
+						<Text>{requirement.name}</Text>
+					</Text>
+				</View>;
+			});
+
 			return (
 				<List.Item key={item._id}
 					multipleLine
@@ -98,6 +127,9 @@ class Grade extends React.Component {
 							<Text style={styleDetail}>Professor: {item.teacher.name}</Text>:
 							<View></View>
 					}
+					<View style={{ flexDirection: 'row' }}>
+						{requirements}
+					</View>
 				</List.Item>
 			);
 		});
@@ -202,6 +234,12 @@ export default compose(
 						_id
 						code
 						name
+						requirement {
+							_id
+							code
+							name
+							userStatus
+						}
 					}
 				}
 			}
