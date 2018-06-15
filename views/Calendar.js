@@ -1,10 +1,11 @@
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql, compose } from 'react-apollo';
 import gql from 'graphql-tag';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { signOut } from '../utils';
 
-import { Text, ScrollView, View, Button, RefreshControl } from 'react-native';
+import { Text, ScrollView, View, Button, RefreshControl, TouchableWithoutFeedback } from 'react-native';
 
 import {
 	List
@@ -43,7 +44,23 @@ class Grade extends React.Component {
 		refetching: false
 	}
 
-	renderItems(items) {
+	setInterest = ({ calendarId, gradeItemId, shift, day, interested }) => {
+		const { updateCalendarItemInterest, data: { refetch } } = this.props;
+
+		updateCalendarItemInterest({
+			variables: {
+				calendarId,
+				gradeItemId,
+				shift,
+				day,
+				interested
+			}
+		}).then(() => {
+			refetch();
+		});
+	}
+
+	renderItems(items, calendarId) {
 		return items.map((item) => {
 			const status = item.userStatus || 'pending';
 			const style = {
@@ -51,17 +68,34 @@ class Grade extends React.Component {
 				color: [StatusColor[status]]
 			};
 			const styleDetail = {
-				color: [StatusColorDetail[status]]
+				color: [StatusColorDetail[status]],
+				lineHeight: 20
 			};
+
+			const onClick = () => this.setInterest({
+				calendarId,
+				gradeItemId: item.grade._id,
+				shift: item.shift,
+				day: item.day,
+				interested: !item.interested
+			});
+
+			const getExtra = () => <TouchableWithoutFeedback onPress={onClick}>
+				<Ionicons name={`md-heart${ item.interested ? '' : '-outline' }`} size={25} color='#666' />
+			</TouchableWithoutFeedback>;
+
 			return (
-				<List.Item key={item._id} multipleLine>
+				<List.Item key={item._id}
+					multipleLine
+					extra={status === 'pending' && getExtra()}
+				>
 					<Text style={style}>
 						{item.grade.name}
 					</Text>
-					<List.Item.Brief style={styleDetail}>Interessados: {item.interested}</List.Item.Brief>
+					<Text style={styleDetail}>Interessados: {item.interested}</Text>
 					{
 						item.teacher && item.teacher.name ?
-							<List.Item.Brief style={styleDetail}>Professor: {item.teacher.name}</List.Item.Brief>:
+							<Text style={styleDetail}>Professor: {item.teacher.name}</Text>:
 							<View></View>
 					}
 				</List.Item>
@@ -109,7 +143,7 @@ class Grade extends React.Component {
 			if (items.length) {
 				return (
 					<List key={key} renderHeader={() => key}>
-						{this.renderItems(items)}
+						{this.renderItems(items, calendar._id)}
 					</List>
 				);
 			}
@@ -149,26 +183,45 @@ class Grade extends React.Component {
 	}
 }
 
-export default graphql(gql`
-	query {
-		calendar {
-			_id
-			grade {
+export default compose(
+	graphql(gql`
+		query {
+			calendar {
 				_id
-				day
-				shift
-				interested
-				teacher {
-					name
-				}
-				userStatus
-				userInterested
 				grade {
 					_id
-					code
-					name
+					day
+					shift
+					interested
+					teacher {
+						name
+					}
+					userStatus
+					userInterested
+					grade {
+						_id
+						code
+						name
+					}
 				}
 			}
 		}
-	}
-`)(Grade);
+	`),
+	graphql(gql`
+		mutation updateCalendarItemInterest(
+			$calendarId: String!
+			$gradeItemId: String!
+			$shift: String!
+			$day: String!
+			$interested: Boolean!
+		) {
+			updateCalendarItemInterest(
+				calendarId: $calendarId
+				gradeItemId: $gradeItemId
+				shift: $shift
+				day: $day
+				interested: $interested
+			)
+		}
+	`, { name: 'updateCalendarItemInterest' })
+)(Grade);
