@@ -167,9 +167,6 @@ class Grade extends React.Component {
 
 export default graphql(gql`
 	query {
-		courses {
-			name
-		}
 		grades {
 			_id
 			credit
