@@ -1,5 +1,5 @@
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql, compose } from 'react-apollo';
 import gql from 'graphql-tag';
 
 import { signOut } from '../utils';
@@ -7,12 +7,13 @@ import { signOut } from '../utils';
 import { Text, StyleSheet, ScrollView, View, Button, RefreshControl } from 'react-native';
 
 import {
-	List
+	List,
+	Button as AntButton
 } from 'antd-mobile-rn';
 
 const StatusColor = {
 	doing: 'orange',
-	done: 'lightgray'
+	done: '#aaa'
 };
 
 const styles = StyleSheet.create({
@@ -30,9 +31,9 @@ class Divider extends React.Component {
 	render() {
 		return (
 			<View key='title' >
-				<View style={{ height: 1, backgroundColor: '#eee', marginTop: 10 }}></View>
+				<View style={{ height: 1, backgroundColor: '#ddd', marginTop: 16 }}></View>
 				<Text style={{ fontSize: 12, color: '#888', marginBottom: 8, textAlign: 'left', marginTop: -9 }}>
-					<Text style={{ fontWeight: 'bold', backgroundColor: 'white', marginVertical: 5 }}>{this.props.children}  </Text>
+					<Text style={{ fontWeight: 'bold', backgroundColor: this.props.backgroundColor || 'white', marginVertical: 5 }}>{this.props.children}  </Text>
 				</Text>
 			</View>
 		);
@@ -82,14 +83,36 @@ class Grade extends React.Component {
 		return items;
 	}
 
-	renderDetail(open, grade) {
+	renderDetail(open, grade, status) {
 		if (!open) {
 			return <View />;
 		}
 
+		const buttonStyle = {
+			padding: 5,
+			flex: 1,
+			borderWidth: 0
+		};
+
+		const onClick = (newStatus) => () => {
+			if (status === newStatus) {
+				return;
+			}
+
+			this.props.updateGradeItem({
+				variables: {
+					_id: grade._id,
+					status: newStatus
+				}
+			}).then(() => {
+				this.props.data.refetch();
+			});
+		};
+
+
 		return (
 			<React.Fragment>
-				<Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>
+				<Text style={{ fontSize: 12, color: '#888' }}>
 					<Text>
 						<Text style={{ fontWeight: 'bold' }}>Código: </Text>
 						<Text>{grade.code}</Text>
@@ -102,11 +125,20 @@ class Grade extends React.Component {
 					</Text>
 				</Text>
 				{this.renderRequirements(grade)}
-				<Divider key='title'>Ementa</Divider>
-				<View style={{ borderRadius: 5, backgroundColor: '#F5F5F9', marginTop: 0 }}>
-					<Text style={{ fontSize: 12, padding: 10, color: '#888' }}>
-						{grade.description}
-					</Text>
+				{ grade.description ?
+					<React.Fragment>
+						<Divider key='title' backgroundColor='#F5F5F9'>Ementa</Divider>
+						<Text style={{ fontSize: 12, padding: 0, color: '#888' }}>
+							{grade.description}
+						</Text>
+					</React.Fragment>:
+					undefined
+				}
+				<Divider key='title' backgroundColor='#F5F5F9'>Estatus</Divider>
+				<View style={{ flexDirection: 'row', marginBottom: 5 }}>
+					<AntButton size='medium' style={buttonStyle} onClick={onClick('pending')} type={status === 'pending' ? 'primary' : 'ghost'} >Pendente</AntButton>
+					<AntButton size='medium' style={buttonStyle} onClick={onClick('doing')} type={status === 'doing' ? 'primary' : 'ghost'}>Cursando</AntButton>
+					<AntButton size='medium' style={buttonStyle} onClick={onClick('done')} type={status === 'done' ? 'primary' : 'ghost'}>Concluído</AntButton>
 				</View>
 			</React.Fragment>
 		);
@@ -133,7 +165,7 @@ class Grade extends React.Component {
 			const status = grade.userStatus || 'pending';
 
 			return (
-				<List.Item key={grade._id} arrow={open ? 'up' : 'down'} multipleLine onClick={() => this.setState({ open: open ? undefined : grade._id })}>
+				<List.Item key={grade._id} arrow={open ? 'up' : 'down'} multipleLine onClick={() => this.setState({ open: open ? undefined : grade._id })} style={{ backgroundColor: open ? '#F5F5F9' : 'white' }}>
 					<View style={{ flexDirection: 'row', paddingVertical: 8 }}>
 						<View style={[styles.badge, { backgroundColor: odd ? '#EEE' : '#AAA' }]}>
 							<Text style={{ color: odd ? '#888' : '#FFF' }}>{`${ grade.semester }º`}</Text>
@@ -142,7 +174,7 @@ class Grade extends React.Component {
 							{grade.name}
 						</Text>
 					</View>
-					{this.renderDetail(open, grade)}
+					{this.renderDetail(open, grade, status)}
 				</List.Item>
 			);
 		});
@@ -186,23 +218,30 @@ class Grade extends React.Component {
 	}
 }
 
-export default graphql(gql`
-	query {
-		grades {
-			_id
-			credit
-			workload
-			code
-			name
-			semester
-			description
-			userStatus
-			requirement {
+export default compose(
+	graphql(gql`
+		query {
+			grades {
 				_id
-				semester
+				credit
+				workload
 				code
 				name
+				semester
+				description
+				userStatus
+				requirement {
+					_id
+					semester
+					code
+					name
+				}
 			}
 		}
-	}
-`)(Grade);
+	`),
+	graphql(gql`
+		mutation updateGradeItem($_id: String! $status: String!) {
+			updateGradeItem(_id: $_id, status: $status)
+		}
+	`, { name: 'updateGradeItem' })
+)(Grade);
