@@ -190,6 +190,43 @@ class Grade extends React.Component {
 		});
 	}
 
+	renderProgress = () => {
+		const { data: { grades, loading } } = this.props;
+
+		if (loading) {
+			return;
+		}
+
+		let total = 0;
+		let done = 0;
+		let doing = 0;
+		let electiveMax = 1;
+
+		for (const item of grades) {
+			if (item.semester !== 'E' || electiveMax-- > 0) {
+				total++;
+				if (item.userStatus === 'done') {
+					done++;
+				} else if (item.userStatus === 'doing') {
+					done++;
+					doing++;
+				}
+			}
+		}
+
+		const percentageDone = Math.round((100 / total) * done);
+		const percentageDoing = Math.round((100 / done) * doing);
+
+		return <View style={{ marginVertical: 10, marginHorizontal: 10 }}>
+			<View style={{ backgroundColor: 'white', flex: 1, borderRadius: 5 }}>
+				<View style={{ backgroundColor: '#5092F0', width: `${ percentageDone }%`, borderRadius: 5 }}>
+					<View style={{ backgroundColor: '#85BD54', height: 10, width: `${ percentageDoing }%`, borderRadius: 5 }}></View>;
+				</View>
+			</View>
+			<Text style={{ textAlign: 'center', paddingTop: 2, color: '#888' }}>{percentageDone}%</Text>
+		</View>;
+	}
+
 	render() {
 		const { data: { loading, error } } = this.props;
 		if (error) {
@@ -206,6 +243,7 @@ class Grade extends React.Component {
 					/>
 				}
 			>
+				{this.renderProgress()}
 				{ loading ?
 					undefined :
 					<List>
