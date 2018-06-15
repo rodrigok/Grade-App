@@ -72,9 +72,7 @@ class Grade extends React.Component {
 			return (
 				<View key={requirement._id} style={{ backgroundColor: 'red', paddingVertical: 1, paddingHorizontal: 5, borderRadius: 2, marginBottom: 2 }}>
 					<Text style={{ fontSize: 12, color: '#FFF', fontWeight: 'bold' }}>
-						<Text>{requirement.code}</Text>
-						<Text> - </Text>
-						<Text>{requirement.name}</Text>
+						{requirement.name}
 					</Text>
 				</View>
 			);
