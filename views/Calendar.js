@@ -141,6 +141,7 @@ class Grade extends React.Component {
 						{item.grade.name}
 					</Text>
 					<Text style={styleDetail}>Interessados: {item.interested}</Text>
+					<Text style={styleDetail}>Semestre: {item.grade.semester}</Text>
 					{
 						item.teacher && item.teacher.name ?
 							<Text style={styleDetail}>Professor: {item.teacher.name}</Text>:
@@ -263,6 +264,7 @@ export default compose(
 						_id
 						code
 						name
+						semester
 						requirement {
 							_id
 							code
