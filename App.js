@@ -2,6 +2,9 @@ import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
+import { WebSocketLink } from 'apollo-link-ws';
+import { concat, split } from 'apollo-link';
+import { getMainDefinition } from 'apollo-utilities';
 import { setContext } from 'apollo-link-context';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
@@ -13,10 +16,12 @@ import Calendar from './views/Calendar';
 import Login from './views/Login';
 import Register from './views/Register';
 
+const host = 'localhost';
+
 const httpLink = new HttpLink({
-	uri: 'http://localhost:3000/graphql'
-	// uri: 'http://192.168.1.16:3000/graphql'
+	uri: `http://${ host }:3000/graphql`
 });
+
 
 const authLink = setContext(async(_, { headers }) => {
 	const token = await getToken();
@@ -35,8 +40,33 @@ const authLink = setContext(async(_, { headers }) => {
 	};
 });
 
+let token = '';
+getToken().then(tokenValue => token = tokenValue);
+
+const wsLink = new WebSocketLink({
+	uri: `ws://${ host }:5000/subscriptions`,
+	options: {
+		reconnect: true,
+		lazy: true,
+		connectionParams: () => {
+			return {
+				authToken: token
+			};
+		}
+	}
+});
+
+const link = split(
+	({ query }) => {
+		const { kind, operation } = getMainDefinition(query);
+		return kind === 'OperationDefinition' && operation === 'subscription';
+	},
+	wsLink,
+	httpLink,
+);
+
 const client = new ApolloClient({
-	link: authLink.concat(httpLink),
+	link: concat(authLink, link),
 	cache: new InMemoryCache()
 });
 

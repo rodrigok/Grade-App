@@ -61,6 +61,21 @@ class Grade extends React.Component {
 		refetching: false
 	}
 
+	constructor(props) {
+		super(props);
+
+		props.data.subscribeToMore({
+			document: gql`
+				subscription grade {
+					grade {
+						_id,
+						userStatus
+					}
+				}
+			`
+		});
+	}
+
 	renderRequirements(grade) {
 		if (!grade.requirement || !grade.requirement.length) {
 			return;
