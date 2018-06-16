@@ -23,7 +23,8 @@ const styles = StyleSheet.create({
 		overflow: 'hidden',
 		paddingHorizontal: 3,
 		paddingVertical: 1,
-		marginRight: 8
+		marginRight: 8,
+		minWidth: 22
 	}
 });
 
@@ -173,15 +174,25 @@ class Grade extends React.Component {
 		});
 
 		return gradesSorted.map((grade) => {
-			const odd = grade.semester % 2 !== 0;
+			const colors = {
+				backgroundColor: '#E0EAFB',
+				color: '#888'
+			};
+
+			if (grade.semester !== 'E') {
+				const odd = grade.semester % 2 !== 0;
+				colors.backgroundColor = odd ? '#EEE' : '#AAA';
+				colors.color = odd ? '#888' : '#FFF';
+			}
+			const semesterNumber = grade.semester === 'E' ? grade.semester : `${ grade.semester }º`;
 			const open = this.state.open === grade._id;
 			const status = grade.userStatus || 'pending';
 
 			return (
 				<List.Item key={grade._id} arrow={open ? 'up' : 'down'} multipleLine onClick={() => this.setState({ open: open ? undefined : grade._id })} style={{ backgroundColor: open ? '#F5F5F9' : 'white' }}>
 					<View style={{ flexDirection: 'row', paddingVertical: 8 }}>
-						<View style={[styles.badge, { backgroundColor: odd ? '#EEE' : '#AAA' }]}>
-							<Text style={{ color: odd ? '#888' : '#FFF' }}>{`${ grade.semester }º`}</Text>
+						<View style={[styles.badge, { backgroundColor: colors.backgroundColor }]}>
+							<Text style={{ color: colors.color, textAlign: 'center' }}>{semesterNumber}</Text>
 						</View>
 						<Text style={{ color: StatusColor[status] }}>
 							{grade.name}
