@@ -1,9 +1,20 @@
 {
-  "presets": ["babel-preset-expo"],
-  "plugins": [["import", { "libraryName": "antd-mobile-rn" }]],
+  "presets": [
+    "babel-preset-react-native-stage-0/decorator-support"
+  ],
+  "plugins": [
+    [
+      "import",
+      {
+        "libraryName": "antd-mobile-rn"
+      }
+    ]
+  ],
   "env": {
     "development": {
-      "plugins": ["transform-react-jsx-source"]
+      "plugins": [
+        "transform-react-jsx-source"
+      ]
     }
   }
 }

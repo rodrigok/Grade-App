@@ -1,8 +1,11 @@
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql, compose } from 'react-apollo';
+// import Expo from 'expo';
 import gql from 'graphql-tag';
 
 import { signIn } from '../utils';
+// import { FBLoginButton } from '../components/FBLoginButton';
+
 
 import { List, InputItem, Button, WhiteSpace, Text } from 'antd-mobile-rn';
 
@@ -57,10 +60,31 @@ class Login extends React.Component {
 		});
 	}
 
+	onFacebook = async() => {
+		// const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync('185969382302390', {
+		// 	permissions: ['public_profile', 'email', 'user_friends']
+		// });
+		// if (type === 'success') {
+		// 	this.props.loginWithFacebook({
+		// 		variables: {
+		// 			accessToken: token
+		// 		}
+		// 	}).then(async({ data: { loginWithFacebook: { token } } }) => {
+		// 		await signIn(token);
+		// 		this.props.screenProps.changeLoginState(true);
+		// 	}).catch((...args) => {
+		// 		this.setState({ log: args });
+		// 	});
+		// }
+	}
+
 	render() {
 		return (
 			<React.Fragment>
 				<WhiteSpace size='xl'/>
+				<Button type='ghost' style={{ borderRadius: 0, borderWidth: 0 }} onClick={this.onFacebook}>
+					facebook
+				</Button>
 				<List>
 					<InputItem
 						type='email'
@@ -92,11 +116,22 @@ class Login extends React.Component {
 	}
 }
 
-export default graphql(gql`
-	mutation login($email: String! $password: String!) {
-		login(email: $email, password: $password) {
-			success
-			token
+export default compose(
+	graphql(gql`
+		mutation login($email: String! $password: String!) {
+			login(email: $email, password: $password) {
+				success
+				token
+			}
 		}
-	}
-`, { name: 'login' })(Login);
+	`, { name: 'login' }),
+	graphql(gql`
+		mutation loginWithFacebook($accessToken: String!) {
+			loginWithFacebook(accessToken: $accessToken) {
+				id
+				token
+				tokenExpires
+			}
+		}
+	`, { name: 'loginWithFacebook' })
+)(Login);
