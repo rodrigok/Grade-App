@@ -102,11 +102,11 @@ class Grade extends React.Component {
 				gradeItemId: item.grade._id,
 				shift: item.shift,
 				day: item.day,
-				interested: !item.interested
+				interested: !item.userInterested
 			});
 
 			const getExtra = () => <TouchableWithoutFeedback onPress={onClick}>
-				<Ionicons name={`md-heart${ item.interested ? '' : '-outline' }`} size={25} color='#666' />
+				<Ionicons name={`md-heart${ item.userInterested ? '' : '-empty' }`} size={25} color='#666' />
 			</TouchableWithoutFeedback>;
 
 			const requirements = item.grade.requirement.filter(r => r.userStatus !== 'done').map(requirement => {

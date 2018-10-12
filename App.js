@@ -79,17 +79,17 @@ const LoggedInStack = createBottomTabNavigator({
 	Calendar: { screen: createStackNavigator({ Calendar }), navigationOptions: { title: 'Calendário' } }
 }, {
 	navigationOptions: ({ navigation }) => ({
-		tabBarIcon: ({ focused, tintColor }) => {
+		tabBarIcon: ({ tintColor }) => {
 			const { routeName } = navigation.state;
 
 			let iconName;
 
 			switch (routeName) {
 				case 'Calendar':
-					iconName = `ios-calendar${ focused ? '' : '-outline' }`;
+					iconName = 'ios-calendar';
 					break;
 				case 'Grade':
-					iconName = `ios-list-box${ focused ? '' : '-outline' }`;
+					iconName = 'ios-list-box';
 					break;
 			}
 
