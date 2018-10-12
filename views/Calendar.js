@@ -147,6 +147,23 @@ class Grade extends React.Component {
 				/>;
 			});
 
+			const friendsExpanded = item.friendsInterested.map(friend => {
+				return <View key={friend.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
+					<Image
+						source={{ uri: friend.pictureUrl }}
+						style={{
+							height: 24,
+							width: 24,
+							borderRadius: 12,
+							borderWidth: 2,
+							borderColor: '#fff',
+							marginRight: 5
+						}}
+					/>
+					<Text style={styleDetail}>{friend.name}</Text>
+				</View>;
+			});
+
 			return (
 				<List.Item key={item._id}
 					multipleLine
@@ -165,9 +182,18 @@ class Grade extends React.Component {
 					<View style={{ flexDirection: 'row' }}>
 						{requirements}
 					</View>
-					<View style={{ flexDirection: 'row', marginLeft: 12, flexWrap: 'wrap' }}>
-						{friends}
-					</View>
+					{this.state.friendsDetail === item._id
+						? <TouchableWithoutFeedback onPress={() => { this.setState({ friendsDetail: undefined }); }}>
+							<View style={{ flexDirection: 'column' }}>
+								{friendsExpanded}
+							</View>
+						</TouchableWithoutFeedback>
+						: <TouchableWithoutFeedback onPress={() => { this.setState({ friendsDetail: item._id }); }}>
+							<View style={{ flexDirection: 'row', marginLeft: 12, flexWrap: 'wrap' }}>
+								{friends}
+							</View>
+						</TouchableWithoutFeedback>
+					}
 				</List.Item>
 			);
 		});
@@ -235,7 +261,8 @@ class Grade extends React.Component {
 	render() {
 		const { data: { loading, error } } = this.props;
 		if (error) {
-			return alert(error);
+			alert(JSON.stringify(error));
+			// return <Text>Oooops. Aconteceu um erro.</Text>;
 		}
 
 		return (

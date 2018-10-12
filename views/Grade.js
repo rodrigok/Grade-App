@@ -268,7 +268,8 @@ class Grade extends React.Component {
 	render() {
 		const { data: { loading, error } } = this.props;
 		if (error) {
-			return alert(error);
+			alert(JSON.stringify(error));
+			return <Text>Oooops. Aconteceu um erro.</Text>;
 		}
 
 		return (

@@ -22,7 +22,6 @@ const httpLink = new HttpLink({
 	uri: `http://${ host }:3000/graphql`
 });
 
-
 const authLink = setContext(async(_, { headers }) => {
 	const token = await getToken();
 
@@ -109,7 +108,7 @@ export default class App extends React.Component {
 		super(props);
 
 		this.state = {
-			loggedIn: true
+			loggedIn: false
 		};
 
 		getToken().then((token) => {
