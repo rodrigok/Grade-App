@@ -246,7 +246,7 @@ class Grade extends React.Component {
 		return <View style={{ marginVertical: 10, marginHorizontal: 10 }}>
 			<View style={{ backgroundColor: 'white', flex: 1, borderRadius: 5 }}>
 				<View style={{ backgroundColor: '#5092F0', width: `${ percentageDone }%`, borderRadius: 5 }}>
-					<View style={{ backgroundColor: '#85BD54', height: 10, width: `${ percentageDoing }%`, borderRadius: 5 }}></View>;
+					<View style={{ backgroundColor: '#85BD54', height: 10, width: `${ percentageDoing }%`, borderRadius: 5 }}></View>
 				</View>
 			</View>
 			<Text style={{ textAlign: 'center', paddingTop: 2, color: '#888' }}>{percentageDone}%</Text>

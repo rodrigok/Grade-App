@@ -1,13 +1,14 @@
 import React from 'react';
 import { graphql, compose } from 'react-apollo';
-// import Expo from 'expo';
 import gql from 'graphql-tag';
+import { LoginButton, AccessToken, LoginManager } from 'react-native-fbsdk';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { signIn } from '../utils';
-// import { FBLoginButton } from '../components/FBLoginButton';
 
 
-import { List, InputItem, Button, WhiteSpace, Text } from 'antd-mobile-rn';
+import { List, InputItem, Button, WhiteSpace } from 'antd-mobile-rn';
+import { Text } from 'react-native';
 
 const rfcMailPattern = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
@@ -60,31 +61,47 @@ class Login extends React.Component {
 		});
 	}
 
-	onFacebook = async() => {
-		// const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync('185969382302390', {
-		// 	permissions: ['public_profile', 'email', 'user_friends']
-		// });
-		// if (type === 'success') {
-		// 	this.props.loginWithFacebook({
-		// 		variables: {
-		// 			accessToken: token
-		// 		}
-		// 	}).then(async({ data: { loginWithFacebook: { token } } }) => {
-		// 		await signIn(token);
-		// 		this.props.screenProps.changeLoginState(true);
-		// 	}).catch((...args) => {
-		// 		this.setState({ log: args });
-		// 	});
-		// }
+	onFacebook = () => {
+		LoginManager.logInWithReadPermissions(['public_profile', 'email', 'user_friends']).then((result) => {
+			if (!result.isCancelled) {
+				AccessToken.getCurrentAccessToken().then((data) => {
+					// this.setState({ log: {
+					// 	result,
+					// 	accessToken: data.accessToken.toString()
+					// } });
+
+					this.props.loginWithFacebook({
+						variables: {
+							accessToken: data.accessToken.toString()
+						}
+					}).then(async({ data: { loginWithFacebook: { token } } }) => {
+						await signIn(token);
+						this.props.screenProps.changeLoginState(true);
+					}).catch((...args) => {
+						this.setState({ log: args });
+					});
+				});
+			}
+		}, function(error) {
+			alert(`Login failed with error: ${ error.message }`);
+		});
 	}
 
 	render() {
 		return (
 			<React.Fragment>
 				<WhiteSpace size='xl'/>
-				<Button type='ghost' style={{ borderRadius: 0, borderWidth: 0 }} onClick={this.onFacebook}>
-					facebook
+				<Button
+					type='primary'
+					onClick={this.onFacebook}
+					style={{
+						borderRadius: 0,
+						backgroundColor: '#466BAE'
+					}}
+				>
+					<Ionicons name='heart' size={25} color='#fff' /> Entrar com Facebook
 				</Button>
+				<WhiteSpace size='xl'/>
 				<List>
 					<InputItem
 						type='email'

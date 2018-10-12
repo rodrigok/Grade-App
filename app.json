@@ -1,7 +1,4 @@
 {
-  "expo": {
-    "sdkVersion": "28.0.0"
-  },
   "name": "MinhaGradeApp",
-  "displayName": "Y"
+  "displayName": "Minha Grade"
 }
