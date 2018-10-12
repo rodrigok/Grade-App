@@ -1,8 +1,9 @@
 import React from 'react';
 import { graphql, compose } from 'react-apollo';
 import gql from 'graphql-tag';
-import { LoginButton, AccessToken, LoginManager } from 'react-native-fbsdk';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { AccessToken, LoginManager } from 'react-native-fbsdk';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 import { signIn } from '../utils';
 
@@ -99,7 +100,7 @@ class Login extends React.Component {
 						backgroundColor: '#466BAE'
 					}}
 				>
-					<Ionicons name='heart' size={25} color='#fff' /> Entrar com Facebook
+					<Icon name='facebook-square' size={20} color='#fff' />  Entrar com Facebook
 				</Button>
 				<WhiteSpace size='xl'/>
 				<List>
