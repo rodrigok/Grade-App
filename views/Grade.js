@@ -217,39 +217,51 @@ class Grade extends React.Component {
 	}
 
 	renderProgress = () => {
-		const { data: { grades, loading } } = this.props;
+		const { data: { grades, loading }, user: { user } } = this.props;
 
 		if (loading) {
 			return;
 		}
 
-		let total = 0;
-		let done = 0;
-		let doing = 0;
-		let electiveMax = 1;
+		const electiveMax = (user && user.profile && user.profile.course && user.profile.course.elective) || 0;
 
-		for (const item of grades) {
-			if (item.semester !== 'E' || electiveMax-- > 0) {
-				total++;
-				if (item.userStatus === 'done') {
-					done++;
-				} else if (item.userStatus === 'doing') {
-					done++;
-					doing++;
-				}
-			}
-		}
+		const total = grades.filter((item) => item.semester !== 'E').length + electiveMax;
 
+		const electiveDone = Math.min(grades.filter((item) => item.semester === 'E' && item.userStatus === 'done').length, electiveMax);
+		const electiveDoing = Math.min(grades.filter((item) => item.semester === 'E' && item.userStatus === 'doing').length, electiveMax - electiveDone);
+
+		const done = grades.filter((item) => item.semester !== 'E' && item.userStatus === 'done').length + electiveDone;
+		const doing = grades.filter((item) => item.semester !== 'E' && item.userStatus === 'doing').length + electiveDoing;
+
+		const percentageTotal = Math.round((100 / total) * (done+doing));
 		const percentageDone = Math.round((100 / total) * done);
-		const percentageDoing = Math.round((100 / done) * doing);
+		const percentageDoing = Math.round((100 / (done+doing)) * doing);
+
+		const descriptionStyle = {
+			textAlign: 'center',
+			paddingTop: 2,
+			color: '#888'
+		};
 
 		return <View style={{ marginVertical: 10, marginHorizontal: 10 }}>
 			<View style={{ backgroundColor: 'white', flex: 1, borderRadius: 5 }}>
-				<View style={{ backgroundColor: '#5092F0', width: `${ percentageDone }%`, borderRadius: 5 }}>
+				<View style={{ backgroundColor: '#5092F0', width: `${ percentageTotal }%`, borderRadius: 5 }}>
 					<View style={{ backgroundColor: '#85BD54', height: 10, width: `${ percentageDoing }%`, borderRadius: 5 }}></View>
 				</View>
 			</View>
-			<Text style={{ textAlign: 'center', paddingTop: 2, color: '#888' }}>{percentageDone}%</Text>
+			<Text style={descriptionStyle}>
+				{percentageTotal}%
+			</Text>
+			{
+				done === 1
+					? <Text style={descriptionStyle}>{ done + doing } de { total } ({ done } concluída + { doing } cursando)</Text>
+					: <Text style={descriptionStyle}>{ done + doing } de { total } ({ done } concluídas + { doing } cursando)</Text>
+			}
+			{
+				electiveMax === 1
+					? <Text style={descriptionStyle}>Considerando {electiveMax} disciplina eletiva</Text>
+					: <Text style={descriptionStyle}>Considerando {electiveMax} disciplinas eletivas</Text>
+			}
 		</View>;
 	}
 
@@ -302,6 +314,24 @@ export default compose(
 			}
 		}
 	`),
+	graphql(gql`
+		query {
+			user {
+				_id
+				mainEmail {
+					address
+				}
+				profile {
+					course {
+						name
+						elective
+					}
+				}
+			}
+		}
+	`, {
+		name: 'user'
+	}),
 	graphql(gql`
 		mutation updateGradeItem($_id: String! $status: String!) {
 			updateGradeItem(_id: $_id, status: $status)
