@@ -5,7 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { signOut } from '../utils';
 
-import { Text, ScrollView, View, Button, RefreshControl, TouchableWithoutFeedback } from 'react-native';
+import { Text, ScrollView, View, Button, RefreshControl, TouchableWithoutFeedback, Image } from 'react-native';
 
 import {
 	List,
@@ -132,6 +132,21 @@ class Grade extends React.Component {
 				</View>;
 			});
 
+			const friends = item.friendsInterested.map(friend => {
+				return <Image
+					key={friend.id}
+					source={{ uri: friend.pictureUrl }}
+					style={{
+						height: 24,
+						width: 24,
+						borderRadius: 12,
+						marginLeft: -12,
+						borderWidth: 2,
+						borderColor: '#fff'
+					}}
+				/>;
+			});
+
 			return (
 				<List.Item key={item._id}
 					multipleLine
@@ -149,6 +164,9 @@ class Grade extends React.Component {
 					}
 					<View style={{ flexDirection: 'row' }}>
 						{requirements}
+					</View>
+					<View style={{ flexDirection: 'row', marginLeft: 12, flexWrap: 'wrap' }}>
+						{friends}
 					</View>
 				</List.Item>
 			);
@@ -260,6 +278,11 @@ export default compose(
 					}
 					userStatus
 					userInterested
+					friendsInterested {
+						id
+						name
+						pictureUrl
+					}
 					grade {
 						_id
 						code
