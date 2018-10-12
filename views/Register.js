@@ -43,6 +43,14 @@ class Register extends React.Component {
 
 	onChange = (field) => (value) => {
 		switch (field) {
+			case 'name':
+				this.setState({
+					error: {
+						...this.state.error,
+						[field]: !/[^\s]+/.test(value)
+					}
+				});
+				break;
 			case 'email':
 				this.setState({
 					error: {
@@ -78,6 +86,7 @@ class Register extends React.Component {
 	onRegister = () => {
 		this.props.signup({
 			variables: {
+				name: this.state.name,
 				email: this.state.email,
 				password: this.state.password,
 				course: this.state.course[0]
@@ -104,10 +113,12 @@ class Register extends React.Component {
 	}
 
 	isSubmitDisabled = () => {
-		return !this.state.email
+		return !this.state.name
+		|| !this.state.email
 		|| !this.state.password
 		|| !this.state.passwordConfirmation
 		|| !this.state.course
+		|| this.state.error.name
 		|| this.state.error.email
 		|| this.state.error.password
 		|| this.state.error.passwordConfirmation;
@@ -128,6 +139,14 @@ class Register extends React.Component {
 			<React.Fragment>
 				<WhiteSpace size='xl'/>
 				<List>
+					<InputItem
+						type='text'
+						placeholder='Nome'
+						autoCapitalize='sentences'
+						error={this.state.error.name}
+						onChange={this.onChange('name')}
+						value={this.state.name}
+					></InputItem>
 					<InputItem
 						type='email'
 						placeholder='Email'
@@ -185,8 +204,8 @@ export default compose(
 		}
 	`),
 	graphql(gql`
-		mutation signup($email: String! $course: String! $password: String!) {
-			signup(email: $email, course: $course, password: $password) {
+		mutation signup($name: String! $email: String! $course: String! $password: String!) {
+			signup(name: $name, email: $email, course: $course, password: $password) {
 				success
 			}
 		}
