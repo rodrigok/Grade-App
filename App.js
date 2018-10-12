@@ -15,6 +15,7 @@ import Grade from './views/Grade';
 import Calendar from './views/Calendar';
 import Login from './views/Login';
 import Register from './views/Register';
+import Course from './views/Course';
 
 const host = 'localhost';
 
@@ -74,6 +75,10 @@ const AuthStack = createStackNavigator({
 	Register: { screen: Register, navigationOptions: { headerTitle: 'Register' } }
 });
 
+const CourseStack = createStackNavigator({
+	Course: { screen: Course, navigationOptions: { headerTitle: 'Curso' } }
+});
+
 const LoggedInStack = createBottomTabNavigator({
 	Grade: { screen: createStackNavigator({ Grade }), navigationOptions: { title: 'Meu Currículo' } },
 	Calendar: { screen: createStackNavigator({ Calendar }), navigationOptions: { title: 'Calendário' } }
@@ -122,10 +127,18 @@ export default class App extends React.Component {
 		this.setState({ loggedIn });
 	};
 
+	handleChangeCourseState = (hasCourse = false) => {
+		this.setState({ hasCourse });
+	};
+
 	renderScreen() {
-		return this.state.loggedIn ?
-			<LoggedInStack screenProps={{ changeLoginState: this.handleChangeLoginState }} /> :
-			<AuthStack screenProps={{ changeLoginState: this.handleChangeLoginState }} />;
+		if (this.state.loggedIn) {
+			return this.state.hasCourse
+				? <LoggedInStack screenProps={{ changeLoginState: this.handleChangeLoginState }} />
+				: <CourseStack screenProps={{ changeCourseState: this.handleChangeCourseState }} />;
+		}
+
+		return <AuthStack screenProps={{ changeLoginState: this.handleChangeLoginState }} />;
 	}
 
 	render() {

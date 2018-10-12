@@ -4,7 +4,8 @@ import gql from 'graphql-tag';
 
 import { signIn } from '../utils';
 
-import { List, InputItem, Button, WhiteSpace, Text, Picker } from 'antd-mobile-rn';
+import { List, InputItem, Button, WhiteSpace, Picker } from 'antd-mobile-rn';
+import { Text } from 'react-native';
 
 const rfcMailPattern = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
