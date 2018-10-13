@@ -174,6 +174,9 @@ class Grade extends React.Component {
 					</Text>
 					<Text style={styleDetail}>Interessados: {item.interested}</Text>
 					<Text style={styleDetail}>Semestre: {item.grade.semester}</Text>
+					{ item.room &&
+						<Text style={styleDetail}>Sala: {item.room}</Text>
+					}
 					{
 						item.teacher && item.teacher.name ?
 							<Text style={styleDetail}>Professor: {item.teacher.name}</Text>:
@@ -300,6 +303,7 @@ export default compose(
 					day
 					shift
 					interested
+					room
 					teacher {
 						name
 					}
