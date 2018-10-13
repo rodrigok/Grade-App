@@ -9,7 +9,7 @@ import { signIn } from '../utils';
 
 
 import { List, InputItem, Button, WhiteSpace } from 'antd-mobile-rn';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 const rfcMailPattern = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
@@ -102,6 +102,13 @@ class Login extends React.Component {
 				>
 					<Icon name='facebook-square' size={20} color='#fff' />  Entrar com Facebook
 				</Button>
+				<WhiteSpace size='xl'/>
+				<Text
+					style={{
+						color: '#888',
+						textAlign: 'center'
+					}}
+				>ou</Text>
 				<WhiteSpace size='xl'/>
 				<List>
 					<InputItem

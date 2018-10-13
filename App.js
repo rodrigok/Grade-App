@@ -1,5 +1,6 @@
 import React from 'react';
-import { ApolloProvider } from 'react-apollo';
+import { ActivityIndicator } from 'react-native';
+import { ApolloProvider, graphql } from 'react-apollo';
 import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
 import { WebSocketLink } from 'apollo-link-ws';
@@ -7,15 +8,18 @@ import { concat, split } from 'apollo-link';
 import { getMainDefinition } from 'apollo-utilities';
 import { setContext } from 'apollo-link-context';
 import { InMemoryCache } from 'apollo-cache-inmemory';
+import gql from 'graphql-tag';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { getToken } from './utils';
+import { getToken, signOut } from './utils';
 import Grade from './views/Grade';
 import Calendar from './views/Calendar';
 import Login from './views/Login';
 import Register from './views/Register';
+import Profile from './views/Profile';
 import Course from './views/Course';
+import Password from './views/Password';
 
 const host = 'localhost';
 
@@ -80,8 +84,9 @@ const CourseStack = createStackNavigator({
 });
 
 const LoggedInStack = createBottomTabNavigator({
-	Grade: { screen: createStackNavigator({ Grade }), navigationOptions: { title: 'Meu Currículo' } },
-	Calendar: { screen: createStackNavigator({ Calendar }), navigationOptions: { title: 'Calendário' } }
+	Grade: { screen: createStackNavigator({ Grade }) },
+	Calendar: { screen: createStackNavigator({ Calendar }) },
+	Profile: { screen: createStackNavigator({ Profile, Password, Course }) }
 }, {
 	navigationOptions: ({ navigation }) => ({
 		tabBarIcon: ({ tintColor }) => {
@@ -96,6 +101,9 @@ const LoggedInStack = createBottomTabNavigator({
 				case 'Grade':
 					iconName = 'ios-list-box';
 					break;
+				case 'Profile':
+					iconName = 'ios-person';
+					break;
 			}
 
 			return <Ionicons name={iconName} size={25} color={tintColor} />;
@@ -107,8 +115,7 @@ const LoggedInStack = createBottomTabNavigator({
 	}
 });
 
-
-export default class App extends React.Component {
+class MainScreen extends React.Component {
 	constructor(props) {
 		super(props);
 
@@ -124,27 +131,56 @@ export default class App extends React.Component {
 	}
 
 	handleChangeLoginState = (loggedIn = false) => {
-		this.setState({ loggedIn });
+		const { data } = this.props;
+		data.refetch().then(() => {
+			this.setState({ loggedIn });
+		});
 	};
 
-	handleChangeCourseState = (hasCourse = false) => {
-		this.setState({ hasCourse });
-	};
+	render() {
+		const { data: { user, loading } } = this.props;
 
-	renderScreen() {
+		if (loading) {
+			return <ActivityIndicator size='large' color='#0000ff' />;
+		}
+
+		if (!user && this.state.loggedIn === true) {
+			signOut().then(() => {
+				this.setState({
+					loggedIn: false
+				});
+			});
+			return <ActivityIndicator size='large' color='#0000ff' />;
+		}
+
 		if (this.state.loggedIn) {
-			return this.state.hasCourse
+			return user.profile && user.profile.course && user.profile.course._id
 				? <LoggedInStack screenProps={{ changeLoginState: this.handleChangeLoginState }} />
-				: <CourseStack screenProps={{ changeCourseState: this.handleChangeCourseState }} />;
+				: <CourseStack />;
 		}
 
 		return <AuthStack screenProps={{ changeLoginState: this.handleChangeLoginState }} />;
 	}
+}
 
+const MainScreenWithData = graphql(gql`
+	query {
+		user {
+			_id
+			profile {
+				course {
+					_id
+				}
+			}
+		}
+	}
+`)(MainScreen);
+
+export default class App extends React.Component {
 	render() {
 		return (
 			<ApolloProvider client={client}>
-				{this.renderScreen()}
+				<MainScreenWithData />
 			</ApolloProvider>
 		);
 	}

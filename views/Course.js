@@ -5,7 +5,6 @@ import gql from 'graphql-tag';
 import { List, Button, WhiteSpace, Picker } from 'antd-mobile-rn';
 import { Text, ActivityIndicator } from 'react-native';
 
-
 class PickerInput extends React.Component {
 
 	render() {
@@ -44,7 +43,9 @@ class Course extends React.Component {
 	}
 
 	onSave = () => {
-		this.props.setCourse({
+		const { setCourse, navigation } = this.props;
+
+		setCourse({
 			variables: {
 				course: this.state.course[0]
 			}
@@ -53,7 +54,10 @@ class Course extends React.Component {
 				return alert('error');
 			}
 
-			this.props.screenProps.changeCourseState(true);
+			if (navigation.state.params.data) {
+				navigation.goBack();
+				navigation.state.params.data.refetch();
+			}
 		}).catch((...args) => {
 			this.setState({ log: args });
 		});
@@ -64,14 +68,14 @@ class Course extends React.Component {
 	}
 
 	render() {
-		const { data: { user, courses, loading } } = this.props;
+		const { data: { user, courses, loading }, screenProps } = this.props;
 
-		if (loading) {
+		if (loading || !courses) {
 			return <ActivityIndicator size='large' color='#0000ff' />;
 		}
 
-		if (user && user.profile && user.profile.course) {
-			this.props.screenProps.changeCourseState(true);
+		if (user && user.profile && user.profile.course && screenProps.changeCourseState) {
+			screenProps.changeCourseState(true);
 			return <Text></Text>;
 		}
 
@@ -88,7 +92,7 @@ class Course extends React.Component {
 						title='Curso'
 						cascade={false}
 						extra='PLACEHOLDER'
-						value={this.state.course}
+						value={this.state.course || (user.profile && user.profile.course && [user.profile.course._id])}
 						okText='Selecionar'
 						dismissText='Cancelar'
 						onChange={this.onChange('course')}
