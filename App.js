@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Platform } from 'react-native';
 import { ApolloProvider, graphql } from 'react-apollo';
 import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
@@ -21,7 +21,7 @@ import Profile from './views/Profile';
 import Course from './views/Course';
 import Password from './views/Password';
 
-const host = 'localhost';
+const host = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
 
 const httpLink = new HttpLink({
 	uri: `http://${ host }:3000/graphql`
