@@ -2,6 +2,7 @@ import React from 'react';
 import { graphql, compose } from 'react-apollo';
 import gql from 'graphql-tag';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import PropTypes from 'prop-types';
 
 import { signOut } from '../utils';
 
@@ -9,48 +10,51 @@ import { Text, ScrollView, View, Button, RefreshControl, TouchableWithoutFeedbac
 
 import {
 	List,
-	Switch
+	Switch,
 } from 'antd-mobile-rn';
 
 const StatusColor = {
 	doing: 'orange',
 	done: 'lightgray',
-	pending: '#444'
+	pending: '#444',
 };
 
 const StatusColorDetail = {
 	doing: 'orange',
 	done: 'lightgray',
-	pending: '#888'
+	pending: '#888',
 };
 
 const Status = {
 	pending: 'Pendente',
 	doing: 'Cursando',
-	done: 'Concluído'
+	done: 'Concluído',
 };
 
 class Grade extends React.Component {
-	static navigationOptions = ({ screenProps }) => {
-		return {
-			title: 'Calendário',
-			headerRight: (
-				<Button
-					onPress={async() => {
-						await signOut();
-						screenProps.changeLoginState(false);
-					}}
-					title='Sair'
-				/>
-			)
-		};
-	};
+	static propTypes = {
+		updateCalendarItemInterest: PropTypes.any,
+		data: PropTypes.any,
+	}
+
+	static navigationOptions = ({ screenProps }) => ({
+		title: 'Calendário',
+		headerRight: (
+			<Button
+				onPress={async() => {
+					await signOut();
+					screenProps.changeLoginState(false);
+				}}
+				title='Sair'
+			/>
+		),
+	});
 
 	state = {
 		refreshing: false,
 		refetching: false,
 		done: false,
-		blocked: true
+		blocked: true,
 	}
 
 	setInterest = ({ calendarId, gradeItemId, shift, day, interested }) => {
@@ -62,8 +66,8 @@ class Grade extends React.Component {
 				gradeItemId,
 				shift,
 				day,
-				interested
-			}
+				interested,
+			},
 		}).then(() => {
 			refetch();
 		});
@@ -79,7 +83,7 @@ class Grade extends React.Component {
 		}
 
 		if (this.state.blocked === false) {
-			return !item.grade.requirement.find(r => r.userStatus === 'pending');
+			return !item.grade.requirement.find((r) => r.userStatus === 'pending');
 		}
 
 		return true;
@@ -90,11 +94,11 @@ class Grade extends React.Component {
 			const status = item.userStatus || 'pending';
 			const style = {
 				fontSize: 17,
-				color: [StatusColor[status]]
+				color: [StatusColor[status]],
 			};
 			const styleDetail = {
 				color: [StatusColorDetail[status]],
-				lineHeight: 20
+				lineHeight: 20,
 			};
 
 			const onClick = () => this.setInterest({
@@ -102,16 +106,16 @@ class Grade extends React.Component {
 				gradeItemId: item.grade._id,
 				shift: item.shift,
 				day: item.day,
-				interested: !item.userInterested
+				interested: !item.userInterested,
 			});
 
 			const getExtra = () => <TouchableWithoutFeedback onPress={onClick}>
 				<Ionicons name={`md-heart${ item.userInterested ? '' : '-empty' }`} size={25} color='#666' />
 			</TouchableWithoutFeedback>;
 
-			const requirements = item.grade.requirement.filter(r => r.userStatus !== 'done').map(requirement => {
+			const requirements = item.grade.requirement.filter((r) => r.userStatus !== 'done').map((requirement) => {
 				const style = {
-					color: '#f50'
+					color: '#f50',
 				};
 
 				switch (requirement.userStatus) {
@@ -132,37 +136,33 @@ class Grade extends React.Component {
 				</View>;
 			});
 
-			const friends = item.friendsInterested.map(friend => {
-				return <Image
-					key={friend.id}
+			const friends = item.friendsInterested.map((friend) => <Image
+				key={friend.id}
+				source={{ uri: friend.pictureUrl }}
+				style={{
+					height: 24,
+					width: 24,
+					borderRadius: 12,
+					marginLeft: -12,
+					borderWidth: 2,
+					borderColor: '#fff',
+				}}
+			/>);
+
+			const friendsExpanded = item.friendsInterested.map((friend) => <View key={friend.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
+				<Image
 					source={{ uri: friend.pictureUrl }}
 					style={{
 						height: 24,
 						width: 24,
 						borderRadius: 12,
-						marginLeft: -12,
 						borderWidth: 2,
-						borderColor: '#fff'
+						borderColor: '#fff',
+						marginRight: 5,
 					}}
-				/>;
-			});
-
-			const friendsExpanded = item.friendsInterested.map(friend => {
-				return <View key={friend.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
-					<Image
-						source={{ uri: friend.pictureUrl }}
-						style={{
-							height: 24,
-							width: 24,
-							borderRadius: 12,
-							borderWidth: 2,
-							borderColor: '#fff',
-							marginRight: 5
-						}}
-					/>
-					<Text style={styleDetail}>{friend.name}</Text>
-				</View>;
-			});
+				/>
+				<Text style={styleDetail}>{friend.name}</Text>
+			</View>);
 
 			return (
 				<List.Item key={item._id}
@@ -179,7 +179,7 @@ class Grade extends React.Component {
 					}
 					{
 						item.teacher && item.teacher.name ?
-							<Text style={styleDetail}>Professor: {item.teacher.name}</Text>:
+							<Text style={styleDetail}>Professor: {item.teacher.name}</Text> :
 							<View></View>
 					}
 					<View style={{ flexDirection: 'row' }}>
@@ -204,7 +204,7 @@ class Grade extends React.Component {
 
 	renderGroups() {
 		const groups = {
-			'EAD': { day: '0', shift: '0' },
+			EAD: { day: '0', shift: '0' },
 			'Segunda - Manhã': { day: '2', shift: '1' },
 			'Segunda - Tarde': { day: '2', shift: '2' },
 			'Segunda - Noite': { day: '2', shift: '3' },
@@ -228,7 +228,7 @@ class Grade extends React.Component {
 			'Sábado - Manhã': { day: '7', shift: '1' },
 			'Sábado - Tarde': { day: '7', shift: '2' },
 			'Sábado - Noite': { day: '7', shift: '3' },
-			'Sábado - Vespertino': { day: '7', shift: '5' }
+			'Sábado - Vespertino': { day: '7', shift: '5' },
 		};
 
 		const { data: { calendar } } = this.props;
@@ -238,7 +238,7 @@ class Grade extends React.Component {
 		}
 
 		return Object.entries(groups).map(([key, { day, shift }]) => {
-			const items = calendar.grade.filter(g => g.day === day && g.shift === shift).filter(this.baseFilter);
+			const items = calendar.grade.filter((g) => g.day === day && g.shift === shift).filter(this.baseFilter);
 			if (items.length) {
 				return (
 					<List key={key} renderHeader={() => key}>
@@ -246,17 +246,18 @@ class Grade extends React.Component {
 					</List>
 				);
 			}
+			return;
 		});
 	}
 
 	_onRefresh = () => {
 		this.setState({
-			refetching: true
+			refetching: true,
 		});
 
 		this.props.data.refetch().then(() => {
 			this.setState({
-				refetching: false
+				refetching: false,
 			});
 		});
 	}

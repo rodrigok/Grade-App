@@ -1,13 +1,20 @@
 import React from 'react';
 import { graphql, compose } from 'react-apollo';
 import gql from 'graphql-tag';
+import PropTypes from 'prop-types';
 
 import { List, Button, WhiteSpace, InputItem } from 'antd-mobile-rn';
 import { Text, ActivityIndicator } from 'react-native';
 
 class Password extends React.Component {
+	static propTypes = {
+		setPassword: PropTypes.any,
+		navigation: PropTypes.any,
+		data: PropTypes.any,
+	}
+
 	state = {
-		error: {}
+		error: {},
 	}
 
 	onChange = (field) => (value) => {
@@ -16,8 +23,8 @@ class Password extends React.Component {
 				this.setState({
 					error: {
 						...this.state.error,
-						[field]: !/[^\s]+/.test(value)
-					}
+						[field]: !/[^\s]+/.test(value),
+					},
 				});
 				break;
 			case 'password':
@@ -25,22 +32,22 @@ class Password extends React.Component {
 					error: {
 						...this.state.error,
 						[field]: value.length === 0,
-						passwordConfirmation: this.state.passwordConfirmation && value !== this.state.passwordConfirmation
-					}
+						passwordConfirmation: this.state.passwordConfirmation && value !== this.state.passwordConfirmation,
+					},
 				});
 				break;
 			case 'passwordConfirmation':
 				this.setState({
 					error: {
 						...this.state.error,
-						[field]: value.length === 0 || value !== this.state.password
-					}
+						[field]: value.length === 0 || value !== this.state.password,
+					},
 				});
 				break;
 		}
 
 		this.setState({
-			[field]: value
+			[field]: value,
 		});
 	}
 
@@ -50,8 +57,8 @@ class Password extends React.Component {
 		setPassword({
 			variables: {
 				currentPassword: this.state.currentPassword,
-				password: this.state.password
-			}
+				password: this.state.password,
+			},
 		}).then(async({ data: { setPassword } }) => {
 			if (setPassword === false) {
 				return alert('error');

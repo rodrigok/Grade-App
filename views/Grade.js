@@ -1,6 +1,7 @@
 import React from 'react';
 import { graphql, compose } from 'react-apollo';
 import gql from 'graphql-tag';
+import PropTypes from 'prop-types';
 
 import { signOut } from '../utils';
 
@@ -8,12 +9,12 @@ import { Text, StyleSheet, ScrollView, View, Button, RefreshControl } from 'reac
 
 import {
 	List,
-	Button as AntButton
+	Button as AntButton,
 } from 'antd-mobile-rn';
 
 const StatusColor = {
 	doing: 'orange',
-	done: '#aaa'
+	done: '#aaa',
 };
 
 const styles = StyleSheet.create({
@@ -24,11 +25,16 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 3,
 		paddingVertical: 1,
 		marginRight: 8,
-		minWidth: 22
-	}
+		minWidth: 22,
+	},
 });
 
 class Divider extends React.Component {
+	static propTypes = {
+		backgroundColor: PropTypes.any,
+		children: PropTypes.any,
+	}
+
 	render() {
 		return (
 			<View key='title' >
@@ -42,24 +48,28 @@ class Divider extends React.Component {
 }
 
 class Grade extends React.Component {
-	static navigationOptions = ({ screenProps }) => {
-		return {
-			title: 'Meu Currículo',
-			headerRight: (
-				<Button
-					onPress={async() => {
-						await signOut();
-						screenProps.changeLoginState(false);
-					}}
-					title='Sair'
-				/>
-			)
-		};
-	};
+	static propTypes = {
+		data: PropTypes.any,
+		updateGradeItem: PropTypes.any,
+		user: PropTypes.any,
+	}
+
+	static navigationOptions = ({ screenProps }) => ({
+		title: 'Meu Currículo',
+		headerRight: (
+			<Button
+				onPress={async() => {
+					await signOut();
+					screenProps.changeLoginState(false);
+				}}
+				title='Sair'
+			/>
+		),
+	});
 
 	state = {
 		refreshing: false,
-		refetching: false
+		refetching: false,
 	}
 
 	constructor(props) {
@@ -73,7 +83,7 @@ class Grade extends React.Component {
 						userStatus
 					}
 				}
-			`
+			`,
 		});
 	}
 
@@ -83,16 +93,14 @@ class Grade extends React.Component {
 		}
 
 		const items = [
-			<Divider key='title' backgroundColor='#F5F5F9'>Requisitos</Divider>
-		].concat(grade.requirement.map(requirement => {
-			return (
-				<View key={requirement._id} style={{ backgroundColor: 'red', paddingVertical: 1, paddingHorizontal: 5, borderRadius: 2, marginBottom: 2 }}>
-					<Text style={{ fontSize: 12, color: '#FFF', fontWeight: 'bold' }}>
-						{requirement.name}
-					</Text>
-				</View>
-			);
-		}));
+			<Divider key='title' backgroundColor='#F5F5F9'>Requisitos</Divider>,
+		].concat(grade.requirement.map((requirement) => (
+			<View key={requirement._id} style={{ backgroundColor: 'red', paddingVertical: 1, paddingHorizontal: 5, borderRadius: 2, marginBottom: 2 }}>
+				<Text style={{ fontSize: 12, color: '#FFF', fontWeight: 'bold' }}>
+					{requirement.name}
+				</Text>
+			</View>
+		)));
 
 		return items;
 	}
@@ -105,7 +113,7 @@ class Grade extends React.Component {
 		const buttonStyle = {
 			padding: 5,
 			flex: 1,
-			borderWidth: 0
+			borderWidth: 0,
 		};
 
 		const onClick = (newStatus) => () => {
@@ -116,8 +124,8 @@ class Grade extends React.Component {
 			this.props.updateGradeItem({
 				variables: {
 					_id: grade._id,
-					status: newStatus
-				}
+					status: newStatus,
+				},
 			}).then(() => {
 				this.props.data.refetch();
 			});
@@ -145,7 +153,7 @@ class Grade extends React.Component {
 						<Text style={{ fontSize: 12, padding: 0, color: '#888' }}>
 							{grade.description}
 						</Text>
-					</React.Fragment>:
+					</React.Fragment> :
 					undefined
 				}
 				<Divider key='title' backgroundColor='#F5F5F9'>Estatus</Divider>
@@ -176,7 +184,7 @@ class Grade extends React.Component {
 		return gradesSorted.map((grade) => {
 			const colors = {
 				backgroundColor: '#E0EAFB',
-				color: '#888'
+				color: '#888',
 			};
 
 			if (grade.semester !== 'E') {
@@ -206,12 +214,12 @@ class Grade extends React.Component {
 
 	_onRefresh = () => {
 		this.setState({
-			refetching: true
+			refetching: true,
 		});
 
 		this.props.data.refetch().then(() => {
 			this.setState({
-				refetching: false
+				refetching: false,
 			});
 		});
 	}
@@ -233,14 +241,13 @@ class Grade extends React.Component {
 		const done = grades.filter((item) => item.semester !== 'E' && item.userStatus === 'done').length + electiveDone;
 		const doing = grades.filter((item) => item.semester !== 'E' && item.userStatus === 'doing').length + electiveDoing;
 
-		const percentageTotal = Math.round((100 / total) * (done+doing));
-		const percentageDone = Math.round((100 / total) * done);
-		const percentageDoing = Math.round((100 / (done+doing)) * doing);
+		const percentageTotal = Math.round((100 / total) * (done + doing));
+		const percentageDoing = Math.round((100 / (done + doing)) * doing);
 
 		const descriptionStyle = {
 			textAlign: 'center',
 			paddingTop: 2,
-			color: '#888'
+			color: '#888',
 		};
 
 		return <View style={{ marginVertical: 10, marginHorizontal: 10 }}>
@@ -331,7 +338,7 @@ export default compose(
 			}
 		}
 	`, {
-		name: 'user'
+		name: 'user',
 	}),
 	graphql(gql`
 		mutation updateGradeItem($_id: String! $status: String!) {

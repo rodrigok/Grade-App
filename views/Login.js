@@ -3,19 +3,26 @@ import { graphql, compose } from 'react-apollo';
 import gql from 'graphql-tag';
 import { AccessToken, LoginManager } from 'react-native-fbsdk';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
+import PropTypes from 'prop-types';
 
 import { signIn } from '../utils';
 
 
 import { List, InputItem, Button, WhiteSpace } from 'antd-mobile-rn';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 
 const rfcMailPattern = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 class Login extends React.Component {
+	static propTypes = {
+		navigation: PropTypes.any,
+		login: PropTypes.any,
+		loginWithFacebook: PropTypes.any,
+		screenProps: PropTypes.any,
+	}
+
 	state = {
-		error: {}
+		error: {},
 	}
 
 	onChange = (field) => (value) => {
@@ -24,22 +31,22 @@ class Login extends React.Component {
 				this.setState({
 					error: {
 						...this.state.error,
-						[field]: !rfcMailPattern.test(value)
-					}
+						[field]: !rfcMailPattern.test(value),
+					},
 				});
 				break;
 			case 'password':
 				this.setState({
 					error: {
 						...this.state.error,
-						[field]: value.length === 0
-					}
+						[field]: value.length === 0,
+					},
 				});
 				break;
 		}
 
 		this.setState({
-			[field]: value
+			[field]: value,
 		});
 	}
 
@@ -52,8 +59,8 @@ class Login extends React.Component {
 		this.props.login({
 			variables: {
 				email: this.state.email,
-				password: this.state.password
-			}
+				password: this.state.password,
+			},
 		}).then(async({ data: { login: { token } } }) => {
 			await signIn(token);
 			this.props.screenProps.changeLoginState(true);
@@ -73,8 +80,8 @@ class Login extends React.Component {
 
 					this.props.loginWithFacebook({
 						variables: {
-							accessToken: data.accessToken.toString()
-						}
+							accessToken: data.accessToken.toString(),
+						},
 					}).then(async({ data: { loginWithFacebook: { token } } }) => {
 						await signIn(token);
 						this.props.screenProps.changeLoginState(true);
@@ -97,7 +104,7 @@ class Login extends React.Component {
 					onClick={this.onFacebook}
 					style={{
 						borderRadius: 0,
-						backgroundColor: '#466BAE'
+						backgroundColor: '#466BAE',
 					}}
 				>
 					<Icon name='facebook-square' size={20} color='#fff' />  Entrar com Facebook
@@ -106,7 +113,7 @@ class Login extends React.Component {
 				<Text
 					style={{
 						color: '#888',
-						textAlign: 'center'
+						textAlign: 'center',
 					}}
 				>ou</Text>
 				<WhiteSpace size='xl'/>

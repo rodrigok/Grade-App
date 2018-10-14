@@ -11,6 +11,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import PropTypes from 'prop-types';
 
 import { getToken, signOut } from './utils';
 import Grade from './views/Grade';
@@ -24,7 +25,7 @@ import Password from './views/Password';
 const host = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
 
 const httpLink = new HttpLink({
-	uri: `http://${ host }:3000/graphql`
+	uri: `http://${ host }:3000/graphql`,
 });
 
 const authLink = setContext(async(_, { headers }) => {
@@ -32,32 +33,30 @@ const authLink = setContext(async(_, { headers }) => {
 
 	if (!token) {
 		return {
-			headers
+			headers,
 		};
 	}
 
 	return {
 		headers: {
 			...headers,
-			authorization: `Bearer ${ token }`
-		}
+			authorization: `Bearer ${ token }`,
+		},
 	};
 });
 
 let token = '';
-getToken().then(tokenValue => token = tokenValue);
+getToken().then((tokenValue) => token = tokenValue);
 
 const wsLink = new WebSocketLink({
 	uri: `ws://${ host }:5000/subscriptions`,
 	options: {
 		reconnect: true,
 		lazy: true,
-		connectionParams: () => {
-			return {
-				authToken: token
-			};
-		}
-	}
+		connectionParams: () => ({
+			authToken: token,
+		}),
+	},
 });
 
 const link = split(
@@ -71,25 +70,28 @@ const link = split(
 
 const client = new ApolloClient({
 	link: concat(authLink, link),
-	cache: new InMemoryCache()
+	cache: new InMemoryCache(),
 });
 
 const AuthStack = createStackNavigator({
 	Login: { screen: Login, navigationOptions: { headerTitle: 'Login' } },
-	Register: { screen: Register, navigationOptions: { headerTitle: 'Register' } }
+	Register: { screen: Register, navigationOptions: { headerTitle: 'Register' } },
 });
 
 const CourseStack = createStackNavigator({
-	Course: { screen: Course, navigationOptions: { headerTitle: 'Curso' } }
+	Course: { screen: Course, navigationOptions: { headerTitle: 'Curso' } },
 });
 
 const LoggedInStack = createBottomTabNavigator({
 	Grade: { screen: createStackNavigator({ Grade }) },
 	Calendar: { screen: createStackNavigator({ Calendar }) },
-	Profile: { screen: createStackNavigator({ Profile, Password, Course }) }
+	Profile: { screen: createStackNavigator({ Profile, Password, Course }) },
 }, {
 	navigationOptions: ({ navigation }) => ({
-		tabBarIcon: ({ tintColor }) => {
+		propTypes: {
+			tintColor: PropTypes.string,
+		},
+		tabBarIcon: ({ tintColor }) => { //eslint-disable-line
 			const { routeName } = navigation.state;
 
 			let iconName;
@@ -107,25 +109,29 @@ const LoggedInStack = createBottomTabNavigator({
 			}
 
 			return <Ionicons name={iconName} size={25} color={tintColor} />;
-		}
+		},
 	}),
 	tabBarOptions: {
 		activeTintColor: 'tomato',
-		inactiveTintColor: 'gray'
-	}
+		inactiveTintColor: 'gray',
+	},
 });
 
 class MainScreen extends React.Component {
+	static propTypes = {
+		data: PropTypes.any,
+	}
+
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			loggedIn: false
+			loggedIn: false,
 		};
 
 		getToken().then((token) => {
 			this.setState({
-				loggedIn: token != null
+				loggedIn: token != null,
 			});
 		});
 	}
@@ -147,7 +153,7 @@ class MainScreen extends React.Component {
 		if (!user && this.state.loggedIn === true) {
 			signOut().then(() => {
 				this.setState({
-					loggedIn: false
+					loggedIn: false,
 				});
 			});
 			return <ActivityIndicator size='large' color='#0000ff' />;

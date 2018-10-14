@@ -1,6 +1,7 @@
 import React from 'react';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import PropTypes from 'prop-types';
 
 import { signOut } from '../utils';
 
@@ -8,11 +9,15 @@ import { Button, WhiteSpace } from 'antd-mobile-rn';
 import { Text } from 'react-native';
 
 class Profile extends React.Component {
-	static navigationOptions = () => {
-		return {
-			title: 'Perfil'
-		};
-	};
+	static propTypes = {
+		navigation: PropTypes.any,
+		data: PropTypes.any,
+		screenProps: PropTypes.any,
+	}
+
+	static navigationOptions = () => ({
+		title: 'Perfil',
+	});
 
 	changeCourse = () => {
 		const { navigation, data } = this.props;
@@ -33,18 +38,18 @@ class Profile extends React.Component {
 
 		const textStyle = {
 			color: '#666',
-			textAlign: 'center'
+			textAlign: 'center',
 		};
 
 		const nameStyle = {
 			...textStyle,
 			fontSize: 40,
-			fontWeight: 'bold'
+			fontWeight: 'bold',
 		};
 
 		const emailStyle = {
 			...textStyle,
-			fontSize: 14
+			fontSize: 14,
 		};
 
 		return (

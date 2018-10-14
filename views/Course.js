@@ -1,17 +1,23 @@
 import React from 'react';
 import { graphql, compose } from 'react-apollo';
 import gql from 'graphql-tag';
+import PropTypes from 'prop-types';
 
 import { List, Button, WhiteSpace, Picker } from 'antd-mobile-rn';
 import { Text, ActivityIndicator } from 'react-native';
 
 class PickerInput extends React.Component {
+	static propTypes = {
+		placeholder: PropTypes.any,
+		extra: PropTypes.any,
+		onClick: PropTypes.any,
+	}
 
 	render() {
 		const { placeholder, extra, onClick } = this.props;
 		let value = placeholder;
 		const styles = {
-			fontSize: 17
+			fontSize: 17,
 		};
 
 
@@ -32,13 +38,20 @@ class PickerInput extends React.Component {
 }
 
 class Course extends React.Component {
+	static propTypes = {
+		setCourse: PropTypes.any,
+		navigation: PropTypes.any,
+		data: PropTypes.any,
+		screenProps: PropTypes.any,
+	}
+
 	state = {
-		error: {}
+		error: {},
 	}
 
 	onChange = (field) => (value) => {
 		this.setState({
-			[field]: value
+			[field]: value,
 		});
 	}
 
@@ -47,8 +60,8 @@ class Course extends React.Component {
 
 		setCourse({
 			variables: {
-				course: this.state.course[0]
-			}
+				course: this.state.course[0],
+			},
 		}).then(async({ data: { setCourse } }) => {
 			if (setCourse === false) {
 				return alert('error');
@@ -63,9 +76,7 @@ class Course extends React.Component {
 		});
 	}
 
-	isSubmitDisabled = () => {
-		return !this.state.course;
-	}
+	isSubmitDisabled = () => !this.state.course
 
 	render() {
 		const { data: { user, courses, loading }, screenProps } = this.props;
@@ -80,7 +91,7 @@ class Course extends React.Component {
 		}
 
 		const pickerData = [
-			courses.map(c => ({ label: c.name, value: c._id }))
+			courses.map((c) => ({ label: c.name, value: c._id })),
 		];
 
 		return (

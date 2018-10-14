@@ -1,6 +1,7 @@
 import React from 'react';
 import { graphql, compose } from 'react-apollo';
 import gql from 'graphql-tag';
+import PropTypes from 'prop-types';
 
 import { signIn } from '../utils';
 
@@ -11,12 +12,17 @@ const rfcMailPattern = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z
 
 
 class PickerInput extends React.Component {
+	static propTypes = {
+		placeholder: PropTypes.any,
+		extra: PropTypes.any,
+		onClick: PropTypes.any,
+	}
 
 	render() {
 		const { placeholder, extra, onClick } = this.props;
 		let value = placeholder;
 		const styles = {
-			fontSize: 17
+			fontSize: 17,
 		};
 
 
@@ -37,8 +43,14 @@ class PickerInput extends React.Component {
 }
 
 class Register extends React.Component {
+	static propTypes = {
+		signup: PropTypes.any,
+		data: PropTypes.any,
+		login: PropTypes.any,
+	}
+
 	state = {
-		error: {}
+		error: {},
 	}
 
 	onChange = (field) => (value) => {
@@ -47,16 +59,16 @@ class Register extends React.Component {
 				this.setState({
 					error: {
 						...this.state.error,
-						[field]: !/[^\s]+/.test(value)
-					}
+						[field]: !/[^\s]+/.test(value),
+					},
 				});
 				break;
 			case 'email':
 				this.setState({
 					error: {
 						...this.state.error,
-						[field]: !rfcMailPattern.test(value)
-					}
+						[field]: !rfcMailPattern.test(value),
+					},
 				});
 				break;
 			case 'password':
@@ -64,22 +76,22 @@ class Register extends React.Component {
 					error: {
 						...this.state.error,
 						[field]: value.length === 0,
-						passwordConfirmation: this.state.passwordConfirmation && value !== this.state.passwordConfirmation
-					}
+						passwordConfirmation: this.state.passwordConfirmation && value !== this.state.passwordConfirmation,
+					},
 				});
 				break;
 			case 'passwordConfirmation':
 				this.setState({
 					error: {
 						...this.state.error,
-						[field]: value.length === 0 || value !== this.state.password
-					}
+						[field]: value.length === 0 || value !== this.state.password,
+					},
 				});
 				break;
 		}
 
 		this.setState({
-			[field]: value
+			[field]: value,
 		});
 	}
 
@@ -89,8 +101,8 @@ class Register extends React.Component {
 				name: this.state.name,
 				email: this.state.email,
 				password: this.state.password,
-				course: this.state.course[0]
-			}
+				course: this.state.course[0],
+			},
 		}).then(async({ data: { signup } }) => {
 			if (signup.success === false) {
 				return alert('error');
@@ -99,8 +111,8 @@ class Register extends React.Component {
 			this.props.login({
 				variables: {
 					email: this.state.email,
-					password: this.state.password
-				}
+					password: this.state.password,
+				},
 			}).then(async({ data: { login: { token } } }) => {
 				await signIn(token);
 				this.props.screenProps.changeLoginState(true);
@@ -112,8 +124,7 @@ class Register extends React.Component {
 		});
 	}
 
-	isSubmitDisabled = () => {
-		return !this.state.name
+	isSubmitDisabled = () => !this.state.name
 		|| !this.state.email
 		|| !this.state.password
 		|| !this.state.passwordConfirmation
@@ -121,8 +132,7 @@ class Register extends React.Component {
 		|| this.state.error.name
 		|| this.state.error.email
 		|| this.state.error.password
-		|| this.state.error.passwordConfirmation;
-	}
+		|| this.state.error.passwordConfirmation
 
 	render() {
 		const { data: { courses, loading } } = this.props;
@@ -132,7 +142,7 @@ class Register extends React.Component {
 		}
 
 		const pickerData = [
-			courses.map(c => ({ label: c.name, value: c._id }))
+			courses.map((c) => ({ label: c.name, value: c._id })),
 		];
 
 		return (
