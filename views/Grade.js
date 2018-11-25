@@ -56,6 +56,7 @@ class Grade extends React.Component {
 
 	static navigationOptions = ({ screenProps }) => ({
 		title: 'Meu Currículo',
+		tabBarLabel: 'Currículo',
 		headerRight: (
 			<Button
 				onPress={async() => {
@@ -231,7 +232,7 @@ class Grade extends React.Component {
 			return;
 		}
 
-		const electiveMax = (user && user.profile && user.profile.course && user.profile.course.elective) || 0;
+		const electiveMax = 1; // (user && user.profile && user.profile.course && user.profile.course.elective) || 0;
 
 		const total = grades.filter((item) => item.semester !== 'E').length + electiveMax;
 

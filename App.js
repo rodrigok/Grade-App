@@ -22,10 +22,12 @@ import Profile from './views/Profile';
 import Course from './views/Course';
 import Password from './views/Password';
 
-const host = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
+// const host = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
+const host = 'faccat.minhagrade.com';
 
 const httpLink = new HttpLink({
-	uri: `http://${ host }:3000/graphql`,
+	// uri: `http://${ host }:3000/graphql`,
+	uri: `https://${ host }/graphql`,
 });
 
 const authLink = setContext(async(_, { headers }) => {
@@ -49,7 +51,8 @@ let token = '';
 getToken().then((tokenValue) => token = tokenValue);
 
 const wsLink = new WebSocketLink({
-	uri: `ws://${ host }:5000/subscriptions`,
+	// uri: `ws://${ host }:5000/subscriptions`,
+	uri: `wss://${ host }/subscriptions`,
 	options: {
 		reconnect: true,
 		lazy: true,
@@ -74,8 +77,8 @@ const client = new ApolloClient({
 });
 
 const AuthStack = createStackNavigator({
-	Login: { screen: Login, navigationOptions: { headerTitle: 'Login' } },
-	Register: { screen: Register, navigationOptions: { headerTitle: 'Register' } },
+	Login: { screen: Login, navigationOptions: { headerTitle: 'Entrar' } },
+	Register: { screen: Register, navigationOptions: { headerTitle: 'Cadstrar' } },
 });
 
 const CourseStack = createStackNavigator({
@@ -83,9 +86,9 @@ const CourseStack = createStackNavigator({
 });
 
 const LoggedInStack = createBottomTabNavigator({
-	Grade: { screen: createStackNavigator({ Grade }) },
-	Calendar: { screen: createStackNavigator({ Calendar }) },
-	Profile: { screen: createStackNavigator({ Profile, Password, Course }) },
+	Grade: { screen: createStackNavigator({ Grade }), navigationOptions: { tabBarLabel: 'Meu Currículo' } },
+	Calendar: { screen: createStackNavigator({ Calendar }), navigationOptions: { tabBarLabel: 'Calendário' } },
+	Profile: { screen: createStackNavigator({ Profile, Password, Course }), navigationOptions: { tabBarLabel: 'Perfil' } },
 }, {
 	navigationOptions: ({ navigation }) => ({
 		propTypes: {
