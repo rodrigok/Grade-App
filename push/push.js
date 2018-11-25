@@ -4,9 +4,7 @@ import gql from 'graphql-tag';
 
 const configPushGql = gql`
 	mutation setPushToken($token: String!){
-		setPushToken(token: $token) {
-			token
-		}
+		setPushToken(token: $token)
 	}
 `;
 
