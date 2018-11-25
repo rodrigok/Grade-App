@@ -1,13 +1,7 @@
+import PushNotification from 'react-native-push-notification';
 import React from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import { ApolloProvider, graphql } from 'react-apollo';
-import { ApolloClient } from 'apollo-client';
-import { HttpLink } from 'apollo-link-http';
-import { WebSocketLink } from 'apollo-link-ws';
-import { concat, split } from 'apollo-link';
-import { getMainDefinition } from 'apollo-utilities';
-import { setContext } from 'apollo-link-context';
-import { InMemoryCache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -21,60 +15,8 @@ import Register from './views/Register';
 import Profile from './views/Profile';
 import Course from './views/Course';
 import Password from './views/Password';
-
-// const host = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
-const host = 'faccat.minhagrade.com';
-
-const httpLink = new HttpLink({
-	// uri: `http://${ host }:3000/graphql`,
-	uri: `https://${ host }/graphql`,
-});
-
-const authLink = setContext(async(_, { headers }) => {
-	const token = await getToken();
-
-	if (!token) {
-		return {
-			headers,
-		};
-	}
-
-	return {
-		headers: {
-			...headers,
-			authorization: `Bearer ${ token }`,
-		},
-	};
-});
-
-let token = '';
-getToken().then((tokenValue) => token = tokenValue);
-
-const wsLink = new WebSocketLink({
-	// uri: `ws://${ host }:5000/subscriptions`,
-	uri: `wss://${ host }/subscriptions`,
-	options: {
-		reconnect: true,
-		lazy: true,
-		connectionParams: () => ({
-			authToken: token,
-		}),
-	},
-});
-
-const link = split(
-	({ query }) => {
-		const { kind, operation } = getMainDefinition(query);
-		return kind === 'OperationDefinition' && operation === 'subscription';
-	},
-	wsLink,
-	httpLink,
-);
-
-const client = new ApolloClient({
-	link: concat(authLink, link),
-	cache: new InMemoryCache(),
-});
+import { client } from './connection';
+import './push/push';
 
 const AuthStack = createStackNavigator({
 	Login: { screen: Login, navigationOptions: { headerTitle: 'Entrar' } },
@@ -120,6 +62,8 @@ const LoggedInStack = createBottomTabNavigator({
 	},
 });
 
+let pushPermissionResquested = false;
+
 class MainScreen extends React.Component {
 	static propTypes = {
 		data: PropTypes.any,
@@ -163,6 +107,10 @@ class MainScreen extends React.Component {
 		}
 
 		if (this.state.loggedIn) {
+			if (!pushPermissionResquested) {
+				PushNotification.requestPermissions();
+				pushPermissionResquested = true;
+			}
 			return user.profile && user.profile.course && user.profile.course._id
 				? <LoggedInStack screenProps={{ changeLoginState: this.handleChangeLoginState }} />
 				: <CourseStack />;
